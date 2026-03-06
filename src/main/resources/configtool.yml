@@ -1,0 +1,5 @@
+plugin: "CrossTheFloor.v1 - BL"
+author: Lolek
+configs:
+  - path: config.yml
+    label: "Main Config"

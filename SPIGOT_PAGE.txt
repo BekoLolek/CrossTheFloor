@@ -1,0 +1,133 @@
+=== SPIGOT RESOURCE PAGE CONTENT ===
+Copy the sections below into the SpigotMC resource submission form.
+
+--- TITLE ---
+CrossTheFloor - Color Floor Minigame
+
+--- TAG LINE ---
+Race across disappearing colored tiles! Stand on the safe block or fall.
+
+--- DESCRIPTION (BBCode) ---
+
+[CENTER]
+[B][SIZE=6][COLOR=#FF8C00]CrossTheFloor[/COLOR][/SIZE][/B]
+[SIZE=4]A fast-paced color floor minigame for Paper 1.21.4+[/SIZE]
+
+[SIZE=3][I]Race across a tiled path of colored blocks. Every few seconds a safe block is announced.
+All other tiles disappear. Wrong block? You fall. First to the end wins![/I][/SIZE]
+[/CENTER]
+
+[SIZE=5][COLOR=#FF8C00]Features[/COLOR][/SIZE]
+[LIST]
+[*][B]Color Floor Minigame[/B] — Race across a 12-wide path made of 2x2 colored concrete tiles
+[*][B]Three Difficulty Tiers[/B] — Easy (8 block types, 6s), Medium (10, 4s), Hard (14, 3s)
+[*][B]Arena System[/B] — Create multiple arenas with a preview outline before building
+[*][B]Auto-Generated Paths[/B] — Full arena structure generated automatically: platforms, walls, fall zone
+[*][B]Randomized Every Round[/B] — New floor layout each round prevents memorization
+[*][B]Ready Check System[/B] — Lobby with hotbar items, auto-kick for idle players
+[*][B]Join via Signs or Commands[/B] — Place [CTF] signs or use /ctf join
+[*][B]Configurable Rewards[/B] — Per-arena Vault money and command rewards
+[*][B]Full Statistics[/B] — Games, wins, losses, falls, win rate, fastest win, streaks
+[*][B]PlaceholderAPI Support[/B] — All stats as placeholders for scoreboards
+[*][B]Inventory Protection[/B] — Full save/restore of inventory, armor, gamemode, health
+[*][B]Hot-Reload[/B] — Reload config without restart
+[/LIST]
+
+[SIZE=5][COLOR=#FF8C00]How It Works[/COLOR][/SIZE]
+
+[B]1. Create an Arena[/B]
+Stand at the desired location, face the path direction, and run:
+[CODE]/ctf create MyArena easy[/CODE]
+A particle outline shows the arena bounds. Run [B]/ctf confirm[/B] to build.
+
+[B]2. Join a Game[/B]
+Place a sign with [B][CTF][/B] on line 1 and the arena name on line 2, or use:
+[CODE]/ctf join MyArena[/CODE]
+
+[B]3. Ready Up[/B]
+Click the green dye in your hotbar or use [B]/ctf ready[/B]. Game starts when all players are ready (minimum 2).
+
+[B]4. Race![/B]
+A safe block type appears as a title. Find it and stand on it before the timer runs out. Wrong block = fall and respawn at start. Floor rebuilds with a new layout each round. First to the end wins!
+
+[SIZE=5][COLOR=#FF8C00]Commands[/COLOR][/SIZE]
+
+[CODE]
+/ctf join <arena>                 Join an arena
+/ctf leave                        Leave current game
+/ctf ready                        Ready up in lobby
+/ctf create <name> <difficulty>   Create arena (easy/medium/hard)
+/ctf confirm                      Confirm arena build
+/ctf cancel                       Cancel arena creation
+/ctf delete <name>                Delete arena
+/ctf list                         List all arenas
+/ctf reload                       Reload config
+/ctf stats                        View your stats
+/ctf stats <player>               View another player's stats
+/ctf stats top [stat]             Leaderboard
+[/CODE]
+
+[SIZE=5][COLOR=#FF8C00]Permissions[/COLOR][/SIZE]
+
+[CODE]
+crossthefloor.play           Join games (default: everyone)
+crossthefloor.admin          Create/delete arenas, reload (default: op)
+crossthefloor.stats          View own stats (default: everyone)
+crossthefloor.stats.others   View others' stats (default: op)
+[/CODE]
+
+[SIZE=5][COLOR=#FF8C00]Difficulty Tiers[/COLOR][/SIZE]
+
+[TABLE]
+[TR][TH]Setting[/TH][TH]Easy[/TH][TH]Medium[/TH][TH]Hard[/TH][/TR]
+[TR][TD]Block types[/TD][TD]8[/TD][TD]10[/TD][TD]14[/TD][/TR]
+[TR][TD]Round interval[/TD][TD]6 seconds[/TD][TD]4 seconds[/TD][TD]3 seconds[/TD][/TR]
+[TR][TD]Safe block frequency[/TD][TD]Every 2 rows[/TD][TD]Every 3 rows[/TD][TD]Every 4 rows[/TD][/TR]
+[/TABLE]
+
+[SIZE=5][COLOR=#FF8C00]Placeholders[/COLOR][/SIZE]
+
+Requires [URL='https://www.spigotmc.org/resources/placeholderapi.6245/']PlaceholderAPI[/URL].
+
+[CODE]
+%crossthefloor_stat_games_played%      Player's total games
+%crossthefloor_stat_games_won%         Player's wins
+%crossthefloor_stat_win_rate%          Player's win percentage
+%crossthefloor_stat_fastest_win%       Player's fastest win (seconds)
+%crossthefloor_stat_best_streak%       Player's best win streak
+%crossthefloor_global_total_games%     Server-wide total games
+%crossthefloor_global_top_winner%      Most winning player
+%crossthefloor_top_<stat>_<pos>%       Leaderboard entry
+[/CODE]
+
+[SIZE=5][COLOR=#FF8C00]Dependencies[/COLOR][/SIZE]
+
+[LIST]
+[*][B]Required:[/B] [URL='https://github.com/BekoLolek/VersionAdapter']VersionAdapter[/URL]
+[*][B]Optional:[/B] [URL='https://www.spigotmc.org/resources/vault.34315/']Vault[/URL] (for money rewards)
+[*][B]Optional:[/B] [URL='https://www.spigotmc.org/resources/placeholderapi.6245/']PlaceholderAPI[/URL] (for placeholders)
+[/LIST]
+
+[SIZE=5][COLOR=#FF8C00]Installation[/COLOR][/SIZE]
+
+[LIST=1]
+[*]Place [B]CrossTheFloor.v1-BL.jar[/B] in your server's plugins/ folder
+[*]Ensure [B]VersionAdapter.jar[/B] is also in plugins/
+[*]Restart the server
+[*]Create arenas in-game with [B]/ctf create[/B]
+[*]Customize settings in [B]plugins/CrossTheFloor/config.yml[/B]
+[/LIST]
+
+[CENTER][SIZE=3][I]Part of the [B]BekoLolek[/B] Plugin Ecosystem — Built by Lolek[/I][/SIZE][/CENTER]
+
+
+--- CATEGORY ---
+Minigames
+
+--- SUPPORTED VERSIONS ---
+1.21.4
+
+--- ICON SUGGESTION ---
+A colorful grid/checkerboard pattern with one tile highlighted or glowing.
+Something like colored concrete blocks arranged in a grid with one standing out.
+Recommended size: 64x64 or 128x128 PNG.

@@ -1,0 +1,28 @@
+name: CrossTheFloor
+version: '1'
+main: dev.bekololek.crossthefloor.Main
+api-version: "1.19"
+description: Color floor minigame - race across disappearing tiles
+authors: [Lolek]
+
+depend: [VersionAdapter]
+softdepend: [Vault, PlaceholderAPI]
+
+commands:
+  ctf:
+    description: CrossTheFloor main command
+    usage: /ctf <create|confirm|cancel|delete|list|reload|stats>
+
+permissions:
+  crossthefloor.play:
+    description: Join games via sign
+    default: true
+  crossthefloor.admin:
+    description: Create/delete arenas, reload config
+    default: op
+  crossthefloor.stats:
+    description: View own stats
+    default: true
+  crossthefloor.stats.others:
+    description: View other players' stats
+    default: op

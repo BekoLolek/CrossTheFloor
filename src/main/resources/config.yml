@@ -1,0 +1,98 @@
+# ============================================================
+# CrossTheFloor Configuration
+# ============================================================
+
+# Message prefix shown before all plugin messages
+prefix: "&6[CTF] &r"
+
+# Minimum players to start a game
+min-players: 2
+
+# Countdown before game starts after all players ready (seconds)
+start-countdown: 3
+
+# Time between blocks disappearing and floor rebuilding (ticks, 20 = 1 second)
+rebuild-delay-ticks: 30
+
+# How far below the path a player must fall to trigger respawn
+fall-threshold: 3
+
+# Default path length in blocks (must be even, divisible by 2 for 2x2 tiles)
+default-path-length: 60
+
+# Height to clear above path (for arena generation)
+clear-height-above: 5
+
+# Depth to clear below path (air gap for falling)
+clear-depth-below: 10
+
+# ── Ready Check ──────────────────────────────────────────────
+ready-check:
+  # Seconds between "not ready" warnings
+  warning-interval: 5
+  # Number of warnings before kick from arena
+  max-warnings: 3
+
+# ── Difficulty Settings ──────────────────────────────────────
+# block-count: how many distinct block types are used
+# safe-row-interval: guaranteed safe tile every N rows (in 2x2 tile rows)
+# round-interval: seconds between safe block announcement and blocks disappearing
+# blocks: list of Material names (must have uniform top texture)
+difficulties:
+  easy:
+    block-count: 8
+    safe-row-interval: 2
+    round-interval: 6
+    blocks:
+      - WHITE_CONCRETE
+      - ORANGE_CONCRETE
+      - MAGENTA_CONCRETE
+      - LIGHT_BLUE_CONCRETE
+      - YELLOW_CONCRETE
+      - LIME_CONCRETE
+      - PINK_CONCRETE
+      - CYAN_CONCRETE
+  medium:
+    block-count: 10
+    safe-row-interval: 3
+    round-interval: 4
+    blocks:
+      - WHITE_CONCRETE
+      - ORANGE_CONCRETE
+      - MAGENTA_CONCRETE
+      - LIGHT_BLUE_CONCRETE
+      - YELLOW_CONCRETE
+      - LIME_CONCRETE
+      - PINK_CONCRETE
+      - CYAN_CONCRETE
+      - GRAY_CONCRETE
+      - PURPLE_CONCRETE
+  hard:
+    block-count: 14
+    safe-row-interval: 4
+    round-interval: 3
+    blocks:
+      - WHITE_CONCRETE
+      - ORANGE_CONCRETE
+      - MAGENTA_CONCRETE
+      - LIGHT_BLUE_CONCRETE
+      - YELLOW_CONCRETE
+      - LIME_CONCRETE
+      - PINK_CONCRETE
+      - CYAN_CONCRETE
+      - GRAY_CONCRETE
+      - PURPLE_CONCRETE
+      - BLUE_CONCRETE
+      - GREEN_CONCRETE
+      - RED_CONCRETE
+      - BLACK_CONCRETE
+
+# ── Default Rewards ──────────────────────────────────────────
+# These apply to arenas that don't have custom rewards set.
+# Per-arena rewards are configured in arenas.yml
+default-rewards:
+  # Vault money awarded to winner (0 = disabled)
+  money: 0
+  # Commands run as console when a player wins (%player% = winner name)
+  commands: []
+  # Example: ["give %player% diamond 5", "say %player% won CrossTheFloor!"]
