@@ -3,8 +3,10 @@ package dev.bekololek.crossthefloor.models;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -31,6 +33,9 @@ public class GameSession {
     private Material[][] tileGrid; // [row][col] = material for that 2x2 tile
     private BukkitTask roundTask;
     private BukkitTask readyCheckTask;
+
+    // Finished players (ordered by finish time)
+    private final List<UUID> finishedPlayers = new ArrayList<>();
 
     // Timing
     private long gameStartTime;
@@ -59,6 +64,8 @@ public class GameSession {
 
     public BukkitTask getReadyCheckTask() { return readyCheckTask; }
     public void setReadyCheckTask(BukkitTask readyCheckTask) { this.readyCheckTask = readyCheckTask; }
+
+    public List<UUID> getFinishedPlayers() { return finishedPlayers; }
 
     public long getGameStartTime() { return gameStartTime; }
     public void setGameStartTime(long gameStartTime) { this.gameStartTime = gameStartTime; }

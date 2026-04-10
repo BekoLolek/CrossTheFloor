@@ -8,6 +8,11 @@ prefix: "&6[CTF] &r"
 # Minimum players to start a game
 min-players: 2
 
+# Number of players that must reach the end for the game to finish
+# Set to 1 for classic mode (first player to finish wins and ends the game)
+# Set higher to keep the game running until that many players cross the finish line
+winners-required: 1
+
 # Countdown before game starts after all players ready (seconds)
 start-countdown: 3
 
@@ -90,9 +95,16 @@ difficulties:
 # ── Default Rewards ──────────────────────────────────────────
 # These apply to arenas that don't have custom rewards set.
 # Per-arena rewards are configured in arenas.yml
+# Each numbered key is a placement (1 = 1st place, 2 = 2nd place, etc.)
+# If winners-required exceeds the defined placements, extra finishers
+# receive the same reward as the last defined placement.
 default-rewards:
-  # Vault money awarded to winner (0 = disabled)
-  money: 0
-  # Commands run as console when a player wins (%player% = winner name)
-  commands: []
-  # Example: ["give %player% diamond 5", "say %player% won CrossTheFloor!"]
+  1:
+    # Vault money awarded (0 = disabled)
+    money: 0
+    # Commands run as console (%player% = finisher name)
+    commands: []
+    # Example: commands: ["give %player% diamond 5", "say %player% won CrossTheFloor!"]
+  # 2:
+  #   money: 0
+  #   commands: []

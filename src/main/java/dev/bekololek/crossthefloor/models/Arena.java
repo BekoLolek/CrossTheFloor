@@ -19,9 +19,9 @@ public class Arena {
     private BlockFace direction; // NORTH, SOUTH, EAST, WEST
     private int pathLength; // in blocks (default 60)
 
-    // Rewards
-    private double rewardMoney;
-    private List<String> rewardCommands = new ArrayList<>();
+    // Per-placement rewards (index 0 = 1st place, 1 = 2nd place, ...)
+    private List<Double> placementMoney = new ArrayList<>();
+    private List<List<String>> placementCommands = new ArrayList<>();
 
     // Sign locations referencing this arena
     private final List<int[]> signLocations = new ArrayList<>(); // [world-hash, x, y, z]
@@ -241,10 +241,10 @@ public class Arena {
     public int getCornerZ() { return cornerZ; }
     public BlockFace getDirection() { return direction; }
     public int getPathLength() { return pathLength; }
-    public double getRewardMoney() { return rewardMoney; }
-    public void setRewardMoney(double rewardMoney) { this.rewardMoney = rewardMoney; }
-    public List<String> getRewardCommands() { return rewardCommands; }
-    public void setRewardCommands(List<String> rewardCommands) { this.rewardCommands = rewardCommands; }
+    public List<Double> getPlacementMoney() { return placementMoney; }
+    public void setPlacementMoney(List<Double> placementMoney) { this.placementMoney = placementMoney; }
+    public List<List<String>> getPlacementCommands() { return placementCommands; }
+    public void setPlacementCommands(List<List<String>> placementCommands) { this.placementCommands = placementCommands; }
     public List<int[]> getSignLocations() { return signLocations; }
 
     public static int getPathWidth() { return PATH_WIDTH; }

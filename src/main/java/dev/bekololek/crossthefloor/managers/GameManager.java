@@ -105,11 +105,18 @@ public class GameManager {
 
         broadcastToSession(session, prefix + "&e" + player.getName() + " &7left the game.");
 
+        // Remove from finished list if they were there
+        session.getFinishedPlayers().remove(player.getUniqueId());
+
         // Check if game should end
         if (session.getState() == GameSession.State.PLAYING || session.getState() == GameSession.State.COUNTDOWN) {
-            if (session.getPlayers().size() < 2) {
+            int winnersRequired = plugin.getConfig().getInt("winners-required", 1);
+            int activePlayers = session.getPlayers().size();
+            int alreadyFinished = session.getFinishedPlayers().size();
+
+            if (activePlayers < 2) {
                 // Auto-win for last player or end game
-                if (session.getPlayers().size() == 1) {
+                if (activePlayers == 1) {
                     UUID lastPlayer = session.getPlayers().iterator().next();
                     Player winner = Bukkit.getPlayer(lastPlayer);
                     if (winner != null) {
@@ -119,6 +126,16 @@ public class GameManager {
                 }
                 endGame(session, null);
                 return;
+            }
+
+            // If not enough active (non-finished) players remain to reach the threshold, end early
+            if (winnersRequired > 1 && alreadyFinished > 0) {
+                int activeUnfinished = activePlayers - alreadyFinished;
+                if (alreadyFinished + activeUnfinished < winnersRequired) {
+                    Player firstFinisher = Bukkit.getPlayer(session.getFinishedPlayers().get(0));
+                    endGame(session, firstFinisher);
+                    return;
+                }
             }
         }
 
@@ -511,7 +528,54 @@ public class GameManager {
         GameSession session = activeSessions.get(key);
         if (session == null || session.getState() != GameSession.State.PLAYING) return;
 
-        endGame(session, player);
+        // Already finished — ignore
+        if (session.getFinishedPlayers().contains(player.getUniqueId())) return;
+
+        session.getFinishedPlayers().add(player.getUniqueId());
+        int placement = session.getFinishedPlayers().size();
+        int winnersRequired = plugin.getConfig().getInt("winners-required", 1);
+
+        String prefix = plugin.getConfig().getString("prefix", "&6[CTF] &r");
+        long finishTime = System.currentTimeMillis() - session.getGameStartTime();
+
+        // Record win for this finisher
+        statsManager.recordWin(player, finishTime);
+
+        // Teleport to end platform
+        Arena arena = session.getArena();
+        int[] endBounds = arena.getEndPlatformBounds();
+        double cx = (endBounds[0] + endBounds[3]) / 2.0 + 0.5;
+        double cz = (endBounds[2] + endBounds[5]) / 2.0 + 0.5;
+        player.teleport(new Location(arena.getWorld(), cx, arena.getCornerY() + 1, cz,
+                player.getLocation().getYaw(), player.getLocation().getPitch()));
+
+        if (winnersRequired <= 1) {
+            // Original behavior — first finisher ends the game
+            endGame(session, player);
+            return;
+        }
+
+        // Announce placement
+        String ordinal = getOrdinal(placement);
+        broadcastToSession(session, prefix + "&a" + player.getName() + " &7finished &e" + ordinal +
+                "&7! &8(" + placement + "/" + winnersRequired + ")");
+        player.playSound(player.getLocation(), Sounds.LEVEL_UP, 1f, 1.2f);
+
+        if (placement >= winnersRequired) {
+            // Required number reached — end the game
+            endGame(session, session.getFinishedPlayers().get(0) != null ?
+                    Bukkit.getPlayer(session.getFinishedPlayers().get(0)) : player);
+        }
+    }
+
+    private String getOrdinal(int n) {
+        if (n >= 11 && n <= 13) return n + "th";
+        return switch (n % 10) {
+            case 1 -> n + "st";
+            case 2 -> n + "nd";
+            case 3 -> n + "rd";
+            default -> n + "th";
+        };
     }
 
     // ── Game End ─────────────────────────────────────────────────────────────
@@ -522,9 +586,6 @@ public class GameManager {
 
         Arena arena = session.getArena();
         String prefix = plugin.getConfig().getString("prefix", "&6[CTF] &r");
-
-        // Calculate win time
-        long winTime = System.currentTimeMillis() - session.getGameStartTime();
 
         if (winner != null) {
             String winMsg = prefix + "&a&l" + winner.getName() + " &awon the game!";
@@ -538,17 +599,32 @@ public class GameManager {
                 }
             }
 
-            // Stats
-            statsManager.recordWin(winner, winTime);
+            // Stats — wins already recorded in handleFinish for multi-winner mode
+            // For single-winner mode (winners-required <= 1), record here
+            int winnersRequired = plugin.getConfig().getInt("winners-required", 1);
+            if (winnersRequired <= 1) {
+                long winTime = System.currentTimeMillis() - session.getGameStartTime();
+                statsManager.recordWin(winner, winTime);
+            }
+
+            // Record losses for non-finishers
             for (UUID uuid : session.getPlayers()) {
-                if (!uuid.equals(winner.getUniqueId())) {
+                if (!session.getFinishedPlayers().contains(uuid)) {
                     Player p = Bukkit.getPlayer(uuid);
                     if (p != null) statsManager.recordLoss(p);
                 }
             }
 
-            // Rewards
-            rewardManager.giveRewards(winner, arena);
+            // Rewards — give to all finishers with their placement
+            List<UUID> finished = session.getFinishedPlayers();
+            for (int i = 0; i < finished.size(); i++) {
+                Player p = Bukkit.getPlayer(finished.get(i));
+                if (p != null) rewardManager.giveRewards(p, arena, i + 1);
+            }
+            // If single-winner mode and no finishers tracked (backwards compat)
+            if (finished.isEmpty()) {
+                rewardManager.giveRewards(winner, arena, 1);
+            }
         } else {
             broadcastToSession(session, prefix + "&7Game ended — no winner.");
         }

@@ -68,13 +68,7 @@ public class ArenaManager {
                     BlockFace.valueOf(a.getString("direction", "NORTH")),
                     a.getInt("path-length", plugin.getConfig().getInt("default-path-length", 60)));
 
-            arena.setRewardMoney(a.getDouble("rewards.money",
-                    plugin.getConfig().getDouble("default-rewards.money", 0)));
-            arena.setRewardCommands(a.getStringList("rewards.commands"));
-            if (arena.getRewardCommands().isEmpty()) {
-                arena.setRewardCommands(new ArrayList<>(
-                        plugin.getConfig().getStringList("default-rewards.commands")));
-            }
+            loadRewards(arena, a.getConfigurationSection("rewards"));
 
             ConfigurationSection signsSec = a.getConfigurationSection("signs");
             if (signsSec != null) {
@@ -105,8 +99,16 @@ public class ArenaManager {
             yaml.set(base + ".corner-z", arena.getCornerZ());
             yaml.set(base + ".direction", arena.getDirection().name());
             yaml.set(base + ".path-length", arena.getPathLength());
-            yaml.set(base + ".rewards.money", arena.getRewardMoney());
-            yaml.set(base + ".rewards.commands", arena.getRewardCommands());
+            for (int p = 0; p < Math.max(arena.getPlacementMoney().size(),
+                    arena.getPlacementCommands().size()); p++) {
+                String rBase = base + ".rewards." + (p + 1);
+                if (p < arena.getPlacementMoney().size()) {
+                    yaml.set(rBase + ".money", arena.getPlacementMoney().get(p));
+                }
+                if (p < arena.getPlacementCommands().size()) {
+                    yaml.set(rBase + ".commands", arena.getPlacementCommands().get(p));
+                }
+            }
 
             int i = 0;
             for (int[] sign : arena.getSignLocations()) {
@@ -128,6 +130,66 @@ public class ArenaManager {
                 }
             }
         }.runTaskAsynchronously(plugin);
+    }
+
+    /**
+     * Load per-placement rewards from an arena's rewards section, falling back to config defaults.
+     * Supports both new format (numbered placements) and old format (single money/commands).
+     */
+    private void loadRewards(Arena arena, ConfigurationSection rewardsSec) {
+        ConfigurationSection defaults = plugin.getConfig().getConfigurationSection("default-rewards");
+
+        // Try numbered placement keys first (new format)
+        List<Double> moneyList = new ArrayList<>();
+        List<List<String>> cmdList = new ArrayList<>();
+
+        ConfigurationSection source = rewardsSec;
+        if (source == null) source = defaults;
+
+        if (source != null) {
+            // Check if this section has numbered keys (1, 2, 3...)
+            boolean hasNumberedKeys = false;
+            for (String key : source.getKeys(false)) {
+                try {
+                    Integer.parseInt(key);
+                    hasNumberedKeys = true;
+                    break;
+                } catch (NumberFormatException ignored) {}
+            }
+
+            if (hasNumberedKeys) {
+                // New per-placement format
+                int maxPlacement = 0;
+                for (String key : source.getKeys(false)) {
+                    try {
+                        maxPlacement = Math.max(maxPlacement, Integer.parseInt(key));
+                    } catch (NumberFormatException ignored) {}
+                }
+                for (int i = 1; i <= maxPlacement; i++) {
+                    ConfigurationSection tier = source.getConfigurationSection(String.valueOf(i));
+                    if (tier != null) {
+                        moneyList.add(tier.getDouble("money", 0));
+                        cmdList.add(new ArrayList<>(tier.getStringList("commands")));
+                    } else {
+                        moneyList.add(0.0);
+                        cmdList.add(new ArrayList<>());
+                    }
+                }
+            } else {
+                // Old single-reward format (backwards compat)
+                moneyList.add(source.getDouble("money", 0));
+                cmdList.add(new ArrayList<>(source.getStringList("commands")));
+            }
+        }
+
+        // If arena section had nothing, fall back to defaults
+        if (moneyList.isEmpty() && defaults != null) {
+            loadRewards(arena, defaults);
+            return;
+        }
+
+        arena.setPlacementMoney(moneyList);
+        arena.setPlacementCommands(cmdList);
     }
 
     // ── Arena CRUD ───────────────────────────────────────────────────────────
@@ -208,8 +270,7 @@ public class ArenaManager {
                 pending.direction(), pending.pathLength());
 
         // Apply default rewards
-        arena.setRewardMoney(plugin.getConfig().getDouble("default-rewards.money", 0));
-        arena.setRewardCommands(new ArrayList<>(plugin.getConfig().getStringList("default-rewards.commands")));
+        loadRewards(arena, null);
 
         arenas.put(arena.getName().toLowerCase(), arena);
         buildArenaStructure(arena);

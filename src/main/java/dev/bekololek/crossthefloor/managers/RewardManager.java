@@ -8,6 +8,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
+import java.util.List;
+
 public class RewardManager {
 
     private final Main plugin;
@@ -27,20 +29,30 @@ public class RewardManager {
         }
     }
 
-    public void giveRewards(Player player, Arena arena) {
+    public void giveRewards(Player player, Arena arena, int placement) {
         String prefix = plugin.getConfig().getString("prefix", "&6[CTF] &r");
 
+        // Resolve tier index: clamp to last defined tier
+        List<Double> moneyList = arena.getPlacementMoney();
+        List<List<String>> cmdList = arena.getPlacementCommands();
+
+        int moneyIndex = moneyList.isEmpty() ? -1 : Math.min(placement - 1, moneyList.size() - 1);
+        int cmdIndex = cmdList.isEmpty() ? -1 : Math.min(placement - 1, cmdList.size() - 1);
+
         // Money reward
-        if (economy != null && arena.getRewardMoney() > 0) {
-            economy.depositPlayer(player, arena.getRewardMoney());
+        if (economy != null && moneyIndex >= 0 && moneyList.get(moneyIndex) > 0) {
+            double amount = moneyList.get(moneyIndex);
+            economy.depositPlayer(player, amount);
             MessageUtil.send(player, prefix, "&aYou received &e$" +
-                    String.format("%.2f", arena.getRewardMoney()) + "&a!");
+                    String.format("%.2f", amount) + "&a!");
         }
 
         // Command rewards
-        for (String cmd : arena.getRewardCommands()) {
-            String parsed = cmd.replace("%player%", player.getName());
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
+        if (cmdIndex >= 0) {
+            for (String cmd : cmdList.get(cmdIndex)) {
+                String parsed = cmd.replace("%player%", player.getName());
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), parsed);
+            }
         }
     }
 }

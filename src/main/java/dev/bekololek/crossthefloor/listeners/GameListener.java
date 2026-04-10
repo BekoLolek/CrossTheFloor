@@ -53,9 +53,10 @@ public class GameListener implements Listener {
             }
         }
 
-        // Finish detection: only during PLAYING
+        // Finish detection: only during PLAYING and not already finished
         if (session.getState() == GameSession.State.PLAYING) {
-            if (arena.isPastFinish(player.getLocation())) {
+            if (!session.getFinishedPlayers().contains(player.getUniqueId()) &&
+                arena.isPastFinish(player.getLocation())) {
                 gameManager.handleFinish(player);
             }
         }

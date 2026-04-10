@@ -1,6 +1,6 @@
 # CrossTheFloor
 
-A multiplayer minigame where players race across a tiled floor of colored blocks. Every few seconds a safe block type is announced — all other tiles disappear, and anyone standing on the wrong block falls and respawns at the start. The floor rebuilds with a new random layout each round. First player to reach the end wins.
+A multiplayer minigame where players race across a tiled floor of colored blocks. Every few seconds a safe block type is announced — all other tiles disappear, and anyone standing on the wrong block falls and respawns at the start. The floor rebuilds with a new random layout each round. Race to reach the end platform — the game can end when the first player finishes or after a configurable number of players cross the finish line.
 
 **Paper 1.21.4+ | Java 21**
 
@@ -13,7 +13,8 @@ A multiplayer minigame where players race across a tiled floor of colored blocks
 - **Randomized Every Round** — Floor layout randomizes after each round to prevent memorization.
 - **Ready Check System** — Players join the lobby, get hotbar items (Ready / Leave), and warnings if they don't ready up.
 - **Join via Signs or Commands** — Place `[CTF]` signs or use `/ctf join <arena>`.
-- **Configurable Rewards** — Per-arena Vault money and console command rewards for winners.
+- **Multi-Winner Mode** — Configure how many players must finish before the game ends. Set `winners-required` to keep the game running until X players cross the finish line.
+- **Per-Placement Rewards** — Define different Vault money and console command rewards for 1st, 2nd, 3rd place, etc. Extra finishers beyond the defined tiers receive the last defined reward.
 - **Statistics & Leaderboards** — Tracks games played, wins, losses, falls, win rate, fastest win, and win streaks.
 - **PlaceholderAPI Support** — All stats exposed as placeholders for scoreboards and holograms.
 - **Inventory Protection** — Player inventories are saved on join and fully restored on leave/game end.
@@ -67,7 +68,7 @@ Place a sign with `[CTF]` on line 1 and the arena name on line 2. The sign auto-
 4. A safe block type is announced via title text. You have a few seconds to find and stand on it.
 5. When the timer expires, all other tiles vanish. Wrong block? You fall and respawn at the start.
 6. The floor rebuilds with a new random layout and a new safe block is chosen.
-7. First player to reach the end platform wins! Everyone is teleported back and inventories are restored.
+7. Players who reach the end platform are finished. In classic mode (`winners-required: 1`), the first finisher wins and the game ends immediately. In multi-winner mode, the game continues until the required number of players finish. All finishers receive placement-based rewards, and everyone is teleported back with inventories restored.
 
 ### Difficulty Tiers
 
@@ -82,6 +83,7 @@ Place a sign with `[CTF]` on line 1 and the arena name on line 2. The sign auto-
 ```yaml
 prefix: "&6[CTF] &r"
 min-players: 2
+winners-required: 1          # Players that must finish to end the game (1 = classic)
 start-countdown: 3
 rebuild-delay-ticks: 30      # Ticks between disappear and rebuild (30 = 1.5s)
 fall-threshold: 3            # Blocks below path to trigger respawn
@@ -99,12 +101,18 @@ difficulties:
     blocks: [WHITE_CONCRETE, ORANGE_CONCRETE, ...]
   # medium and hard similarly configured
 
+# Per-placement rewards (1 = 1st place, 2 = 2nd place, etc.)
+# If winners-required exceeds defined tiers, extra finishers get the last tier's reward.
 default-rewards:
-  money: 0                   # Vault money (0 = disabled)
-  commands: []               # Console commands (%player% placeholder)
+  1:
+    money: 0                 # Vault money (0 = disabled)
+    commands: []             # Console commands (%player% placeholder)
+  # 2:
+  #   money: 0
+  #   commands: []
 ```
 
-Per-arena rewards can be set in `arenas.yml`.
+Per-arena rewards can be set in `arenas.yml` using the same numbered placement format.
 
 ## Placeholders
 
